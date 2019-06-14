@@ -29,28 +29,87 @@ class MergeController extends Controller
         $file1 = public_path() . '/Fichero1.xlsx';
         $file2 = public_path() . '/Fichero2.xlsx';
 
-        $outputFile = "final.xlsx";
 
-// Files are loaded to PHPExcel using the IOFactory load() method
-        $objPHPExcel1 = IOFactory::load($file1);
-        $objPHPExcel2 = IOFactory::load($file2);
+        //$outputFile = "final.xlsx";
 
-// Copy worksheets from $objPHPExcel2 to $objPHPExcel1
-        foreach ($objPHPExcel2->getAllSheets() as $sheet) {
+        $reader = IOFactory::createReader('Xlsx');
+        $reader->setReadDataOnly(TRUE);
 
-            $sheet->setTitle('Sheet2');
-            $objPHPExcel1->addExternalSheet($sheet);
+        $merge = new Spreadsheet();
+        $sheet = $merge->getActiveSheet();
+
+
+        $spreadsheet1 = $reader->load($file1);
+
+
+        $worksheet = $spreadsheet1->getActiveSheet();
+        $highestRow = $worksheet->getHighestRow();
+        $highestColumn = $worksheet->getHighestColumn();
+        $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
+
+        for ($row = 1; $row <= $highestRow; ++$row) {
+
+            for ($col = 1; $col <= $highestColumnIndex; ++$col) {
+                $value = $worksheet->getCellByColumnAndRow($col, $row)->getValue();
+                $sheet->setCellValueByColumnAndRow($col, $row, $value);
+
+            }
+
         }
-        $objWriter = IOFactory::createWriter($objPHPExcel1, "Xlsx");
-        header("Content-Type: application/vnd.ms-excel");
-        header("Content-Disposition: attachment; filename=$outputFile");
-        header("Cache-Control: max-age=0");
-        $objWriter->save('php://output');
+
+        $spreadsheet2 = $reader->load($file2);
+
+
+        $worksheet2 = $spreadsheet2->getActiveSheet();
+        $highestRow2 = $worksheet2->getHighestRow();
+        $highestColumn2 = $worksheet2->getHighestColumn();
+        $highestColumnIndex2 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn2);
+        $aux = $col;
+        for ($row2 = 1; $row2 <= $highestRow2; ++$row2) {
+              $col = $aux;
+            for ($col2 = 1; $col2 <= $highestColumnIndex2; ++$col2) {
+                $value = $worksheet2->getCellByColumnAndRow($col2, $row2)->getValue();
+                $sheet->setCellValueByColumnAndRow($col, $row2, $value);
+
+                $col++;
+
+            }
+
+
+
+        }
+        $arr = array();
+          $arrsheet = $merge->getActiveSheet();
+        $highestRow3 = $arrsheet->getHighestRow();
+        $highestColumn3 = $arrsheet->getHighestColumn();
+        $highestColumnIndex3 = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn3);
+
+        for ($row = 1; $row <= $highestRow3; ++$row) {
+
+            for ($col = 1; $col <= $highestColumnIndex3; ++$col) {
+                $value = $arrsheet->getCellByColumnAndRow($col, $row)->getValue();
+
+                array_push($arr, $value);
+
+            }
+
+
+
+        }
+
+
+     /*      $writer = new Xlsx($merge);
+         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+         header('Content-Disposition: attachment;filename="merge.xlsx"');
+         header('Cache-Control: max-age=0');
+        $writer->save('php://output');*/
+       return view('merge', ['merge' => $arr]);
+
     }
 // I'm going to describe a bit different:
 
     /**
-     * Store a newly created resource in storage. 
+     * Store a newly created resource in storage.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response

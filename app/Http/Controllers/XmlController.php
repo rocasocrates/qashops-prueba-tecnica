@@ -66,12 +66,12 @@ class XmlController extends Controller
         }
 
 
-        $writer = new Xlsx($spreadsheet);
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="aplanamiento.xlsx"');
-        header('Cache-Control: max-age=0');
-        $writer->save('php://output');
-        // return view('xml', ['xmlContent' => $xml->products]);
+     //   $writer = new Xlsx($spreadsheet);
+       // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+       // header('Content-Disposition: attachment;filename="aplanamiento.csv"');
+       // header('Cache-Control: max-age=0');
+        //$writer->save('php://output');
+         return view('xml', ['xmlContent' => $xml->products]);
 
 
     }
